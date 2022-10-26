@@ -1,204 +1,270 @@
-/* Include libraries with functions that are needed. */
-// tape.1
-// tape.2 
-#include <NewPing.h>
+/* USER CODE BEGIN Header */
+/**
+  ******************************************************************************
+  * @file           : main.c
+  * @brief          : Main program body
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2022 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
+/* USER CODE END Header */
+/* Includes ------------------------------------------------------------------*/
+#include "main.h"
 
-/* Define pinout of Arduino to match physical connections */
-//HINT: All of the Arduino pins are NOT 88
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
 
-#define PWMA 9 // ~PWM needed
-#define AIN1 7
-#define AIN2 8
-#define PWMB 10 // ~PWM needed
-#define BIN1 4
-#define BIN2 2
-#define STBY 13		
+/* USER CODE END Includes */
 
-#define SPEAKER 88 	//piezo buzzer pin, ~PWM needed
-#define FREQ 1000	//frequency of piezo buzzer
-#define LED 88		//sumo LED pin
+/* Private typedef -----------------------------------------------------------*/
+/* USER CODE BEGIN PTD */
 
-#define U_TRIG 11	//Ultrasonic Trigger pin, ~PWM needed
-#define U_ECHO 12	// Ultrasonic Echo pin, ~PWM needed
-#define MAX_DISTANCE 200 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
+/* USER CODE END PTD */
 
-NewPing sonic( U_TRIG, U_ECHO, MAX_DISTANCE);
+/* Private define ------------------------------------------------------------*/
+/* USER CODE BEGIN PD */
+/* USER CODE END PD */
 
-void setup() {
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
 
-/* Define all 7 pins as outputs to the TB6612FNG speed controller */
-pinMode(PWMA,OUTPUT);
-pinMode(AIN1,OUTPUT);
-pinMode(AIN2,OUTPUT);
-pinMode(PWMB,OUTPUT);
-pinMode(BIN1,OUTPUT);
-pinMode(BIN2,OUTPUT);
-pinMode(STBY,OUTPUT);
-Serial.begin (115200);
+/* USER CODE END PM */
 
-						// Open serial monitor at 115200 baud to see ultrasonic values
-	startUp();
+/* Private variables ---------------------------------------------------------*/
+TIM_HandleTypeDef htim1;
 
- delay(500);			//pause 500ms before the match starts  
-}
- 
-void loop() {
-		
-			//ultrasonic
-			int distance = sonic.ping_cm();
-			Serial.print("ping:");
-			Serial.print (distance);
-			Serial.print ("cm");
-			
-			startUp();
+/* USER CODE BEGIN PV */
 
-			//search for the other sumobot
-			if( distance <= 25){
-				goForward ();
-				  delay(1000);
-			}
-			
-			//attack by spin
-			else{
-				rotateLeft();
-			}				
-			
-}
+/* USER CODE END PV */
 
+/* Private function prototypes -----------------------------------------------*/
+void SystemClock_Config(void);
+static void MX_GPIO_Init(void);
+static void MX_TIM1_Init(void);
+/* USER CODE BEGIN PFP */
 
-/** IMPORTANT COMBO FUNCTIONS
- * Write your important combo functions here!
- * Make sure to write a function to find and another to attack.
- **/
- 
-//Write a Function to Find opponent Sumo
+/* USER CODE END PFP */
 
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
 
+/* USER CODE END 0 */
 
-
-
-//Write Function to Attack opponent Sumo
-
-
-
-
-
- 
-/** BUILT-IN FUNCTION DEFINITIONS
- * Use these functions to make your robot perform
- * basic behaviors.
- * 
- * Note that the PWM values sent to both motors are not equal.
- * Due to variations in motor output, it was found that a duty cycle
- * of about 233 on the left motor and 255 on the right motor makes 
- * a sumobot travel in a straight line at full speed.
- **/
- 
- void startUp ()
+/**
+  * @brief  The application entry point.
+  * @retval int
+  */
+int main(void)
 {
-  digitalWrite(STBY,HIGH);
+  /* USER CODE BEGIN 1 */
+  volatile uint16_t duty=0;
+  /* USER CODE END 1 */
+
+  /* MCU Configuration--------------------------------------------------------*/
+
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  HAL_Init();
+
+  /* USER CODE BEGIN Init */
+
+  /* USER CODE END Init */
+
+  /* Configure the system clock */
+  SystemClock_Config();
+
+  /* USER CODE BEGIN SysInit */
+
+  /* USER CODE END SysInit */
+
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_TIM1_Init();
+  /* USER CODE BEGIN 2 */
+  HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+
+		htim1.Instance->CCR1=250;
+		HAL_Delay(1000);
+		htim1.Instance->CCR1=500;
+		HAL_Delay(1000);
+
+
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
+  }
+  /* USER CODE END 3 */
 }
 
-void shutDown ()
+/**
+  * @brief System Clock Configuration
+  * @retval None
+  */
+void SystemClock_Config(void)
 {
-  digitalWrite(STBY,LOW);
-}
- 
-void goForward ()
-{
-  digitalWrite (AIN1,LOW);
-  digitalWrite (AIN2,HIGH);
-  analogWrite(PWMA,234);
-  digitalWrite (BIN1,HIGH);
-  digitalWrite (BIN2,LOW);
-  analogWrite(PWMB,255);  
-}
- 
-void goBackward ()
-{
-  digitalWrite (AIN1,LOW);
-  digitalWrite (AIN2,HIGH);
-  analogWrite(PWMA,233);
-  digitalWrite (BIN1,LOW);
-  digitalWrite (BIN2,HIGH);
-  analogWrite(PWMB,255);  
-}
- 
-void rotateRight ()
-{
-  digitalWrite (AIN1,HIGH);
-  digitalWrite (AIN2,LOW);
-  analogWrite(PWMA,255);
-  digitalWrite (BIN1,LOW);
-  digitalWrite (BIN2,HIGH);
-  analogWrite(PWMB,255);  
-}
- 
-void rotateLeft ()
-{
-  digitalWrite (AIN1,HIGH);
-  digitalWrite (AIN2,LOW);
-  analogWrite(PWMA,255);
-  digitalWrite (BIN1,HIGH);
-  digitalWrite (BIN2,LOW);
-  analogWrite(PWMB,255);  
-}
- 
-void veerLeft ()
-{
-  digitalWrite (AIN1,HIGH);
-  digitalWrite (AIN2,LOW);
-  analogWrite(PWMA,190);
-  digitalWrite (BIN1,HIGH);
-  digitalWrite (BIN2,LOW);
-  analogWrite(PWMB,255);  
-}
- 
-void veerRight ()
-{
-  digitalWrite (AIN1,HIGH);
-  digitalWrite (AIN2,LOW);
-  analogWrite(PWMA,255);
-  digitalWrite (BIN1,HIGH);
-  digitalWrite (BIN2,LOW);
-  analogWrite(PWMB,190);  
-}
- 
-void applyBrakes ()
-{
-  digitalWrite (AIN1,HIGH);
-  digitalWrite (AIN2,HIGH);
-  analogWrite(PWMA,255);
-  digitalWrite (BIN1,HIGH);
-  digitalWrite (BIN2,HIGH);
-  analogWrite(PWMB,255);  
+  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+
+  /** Initializes the RCC Oscillators according to the specified parameters
+  * in the RCC_OscInitTypeDef structure.
+  */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Initializes the CPU, AHB and APB buses clocks
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSE;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+  {
+    Error_Handler();
+  }
 }
 
-/** ADDITIONAL COMBO FUNCTIONS
- * Write additional Customized Combination functions here!
- * The following calculations may be useful for your custom methods:
- * (1) A 1 pound sumobot using the 6V Pololu130 motors with a fresh 9V 
- * battery may have wheels that spin about 27 revolutions per minute (RPM).
- * <www.pololu.com/product/1117>
- * (2) The Pololu truck wheels have a 36mm diameter, meaning
- * the wheels travel 36*pi mm for each revolution.
- * <www.pololu.com/product/65>
- * (3) For a robot performing a point turn (with one wheel traveling 
- * forward, and the other traveling backwards), the wheels trace out
- * a circle on the ground with a diameter equal to the distance between
- * the wheels.  For the Tamiya Double Gearbox, that is 60mm.
- * <www.pololu.com/product/114>
- * (4) One full robot rotation will see each wheel traveling 60*pi mm, 
- * Each wheel will spin 60*pi/36*pi times (~1.67x) for a robot rotation.
- * Thus, we have 27/1.67 (16.2) robot rotations per minute.
- * Or 16.2*360/60 (972) degrees of rotation per second (~0.972 deg/ms)
- * (5) Remember that calculations consider ideal conditions.  You
- * will need to test your robot out to get desired results.
- **/
-
-//Function to turn around 180 degrees 
-void turnAround()
+/**
+  * @brief TIM1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM1_Init(void)
 {
-  rotateLeft();
-  delay(1370);
+
+  /* USER CODE BEGIN TIM1_Init 0 */
+
+  /* USER CODE END TIM1_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+  TIM_OC_InitTypeDef sConfigOC = {0};
+  TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = {0};
+
+  /* USER CODE BEGIN TIM1_Init 1 */
+
+  /* USER CODE END TIM1_Init 1 */
+  htim1.Instance = TIM1;
+  htim1.Init.Prescaler = 7;
+  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim1.Init.Period = 999;
+  htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim1.Init.RepetitionCounter = 0;
+  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_PWM_Init(&htim1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 500;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
+  sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+  if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
+  sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
+  sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
+  sBreakDeadTimeConfig.DeadTime = 0;
+  sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
+  sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
+  sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
+  if (HAL_TIMEx_ConfigBreakDeadTime(&htim1, &sBreakDeadTimeConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM1_Init 2 */
+
+  /* USER CODE END TIM1_Init 2 */
+  HAL_TIM_MspPostInit(&htim1);
+
 }
+
+/**
+  * @brief GPIO Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_GPIO_Init(void)
+{
+
+  /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOD_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+
+}
+
+/* USER CODE BEGIN 4 */
+
+/* USER CODE END 4 */
+
+/**
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
+  */
+void Error_Handler(void)
+{
+  /* USER CODE BEGIN Error_Handler_Debug */
+  /* User can add his own implementation to report the HAL error return state */
+  __disable_irq();
+  while (1)
+  {
+  }
+  /* USER CODE END Error_Handler_Debug */
+}
+
+#ifdef  USE_FULL_ASSERT
+/**
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
+void assert_failed(uint8_t *file, uint32_t line)
+{
+  /* USER CODE BEGIN 6 */
+  /* User can add his own implementation to report the file name and line number,
+     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+  /* USER CODE END 6 */
+}
+#endif /* USE_FULL_ASSERT */
+
