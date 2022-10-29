@@ -23,7 +23,23 @@
 #define MAX_DISTANCE 200 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
 
 NewPing sonic( U_TRIG, U_ECHO, MAX_DISTANCE);
-
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1) == GPIO_PIN_SET && Is_First_Captured==0)
+	{/* xoay phải trong vòng ? s*/}
+	else if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) == GPIO_PIN_SET && Is_First_Captured==0)
+	{/* xoay trái trong vòng ? s*/}
+	else if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3) == GPIO_PIN_SET)
+	{/* đi thẳng*/}
+	else if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) == GPIO_PIN_SET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) == GPIO_PIN_SET && Is_First_Captured==0)
+	{/* đi lùi*/}
+	else if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1) == GPIO_PIN_SET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3) == GPIO_PIN_SET)
+	{/* xoay phải trong vòng ? s*/}
+	else if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) == GPIO_PIN_SET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3) == GPIO_PIN_SET)
+	{/* xoay trái trong vòng ? s*/}
+	else if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) == GPIO_PIN_SET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) == GPIO_PIN_SET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3) == GPIO_PIN_SET)
+	{/* ko làm gì vì ko thể xảy ra*/}
+}
 void setup() {
 
 /* Define all 7 pins as outputs to the TB6612FNG speed controller */
