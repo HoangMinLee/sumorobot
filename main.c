@@ -68,7 +68,7 @@ uint32_t IC_Val2 = 0;
 uint32_t Difference = 0;
 uint8_t Is_First_Captured = 0;  // is the first value captured ?
 uint16_t Distance  = 0;
-uint16_t targetD = 50;
+uint16_t targetD = 55;
 uint16_t MAX_DISTANCE=100;
 uint16_t action;
 #define TRIG_PIN GPIO_PIN_9
@@ -104,14 +104,8 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 
 			Distance = Difference * .034/2;
 
-		    if(Distance > MAX_DISTANCE)
-		    {
-		    	Distance = MAX_DISTANCE;
-		    }
-		    if(Distance == 0)
-		    {
-		    	Distance = MAX_DISTANCE;
-		    }
+
+
 
 			if(Distance<targetD && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1) == SET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) == SET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3) == SET )
 			{
@@ -139,51 +133,41 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1) == RESET  && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) == SET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3) == SET)
 	{
-		stop();
-		HAL_Delay(10);
-		backward(400);
+		backward(700);
 		HAL_Delay(100);
 		stop();
 		HAL_Delay(10);
-		turnright(450);
+		turnright(550);
 		action = 1;
 		/*-----left sensor --> backward and turn right-----*/
 	}
 	else if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)== SET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) == RESET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3)== SET)
 	  {
-		stop();
-		HAL_Delay(10);
-		backward(400) ;
+		backward(700) ;
 		HAL_Delay(100);
 		stop();
 		HAL_Delay(10);
-		turnleft(450);
+		turnleft(550);
 		action = 0;
 		/*-----right sensor --> backward and turn left-----*/
 	  }
 	else if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)== SET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) == SET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3)== RESET)
 	{
-		stop();
-		HAL_Delay(10);
-		forward(500);
+		forward(700);
 	    HAL_Delay(75);
 	    /*-----back sensor --> forward-----*/
 	}
 	else if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)== RESET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2)== RESET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3)== SET)
 	{
-		stop();
-		HAL_Delay(10);
-		backward(500) ;
+		backward(700) ;
 		HAL_Delay(500);
 		 /*-----left sensor, right sensor --> backward-----*/
 	}
 	else if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)== RESET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2)== SET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3)== RESET)
 	{
-		stop();
-		HAL_Delay(10);
-		turnright(600) ;
+		turnright(650) ;
 		HAL_Delay(350) ;
-		forward(450)   ;
+		forward(550)   ;
 		HAL_Delay(250) ;
 		action = 1       ;
 
@@ -191,11 +175,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	}
 	else if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)== SET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) == RESET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3)== RESET)
 	{
-		stop();
-		HAL_Delay(10);
-		turnleft(600)  ;
+		turnleft(650)  ;
 		HAL_Delay(350) ;
-		forward(450)   ;
+		forward(550)   ;
 		HAL_Delay(250) ;
 		action = 0       ;
 		   /*-----right sensor, back sensor --> turn left, forward-----*/
@@ -211,7 +193,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 void HCSR04_Read (void)
 {
 	HAL_GPIO_WritePin(TRIG_PORT, TRIG_PIN, GPIO_PIN_SET);     // pull the TRIG pin HIGH
-	delay(10);  // wait for 10 us
+	delay(5);  // wait for 10 us
 	HAL_GPIO_WritePin(TRIG_PORT, TRIG_PIN, GPIO_PIN_RESET);  // pull the TRIG pin low
 
 	__HAL_TIM_ENABLE_IT(&htim1, TIM_IT_CC1);
@@ -291,7 +273,8 @@ void attack()
 {
 	if((target == 1) && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1) == SET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) == SET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3) == SET)
 	{
-		forward(750);
+
+		forward(950);
 	}
 	else if (!(target == 1) && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1) == SET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) == SET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3) == SET)
 	{
@@ -328,7 +311,7 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+ HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -352,6 +335,8 @@ int main(void)
   HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
   HAL_TIM_Base_Start_IT(&htim3);
+  HAL_Delay(3200);
+  turnleft(400);
   //turnright(100);
   /* USER CODE END 2 */
 
@@ -359,8 +344,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	    HCSR04_Read();
-      HAL_Delay(200);
+	  HCSR04_Read();
+      HAL_Delay(40);
       attack();
 
 
